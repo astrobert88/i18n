@@ -11,7 +11,9 @@ public class UiTextService {
 
     private UiTextRepository uiTextRepository;
 
-    public UiTextService(UiTextRepository uiTextRepository) { this.uiTextRepository = uiTextRepository; }
+    public UiTextService(UiTextRepository uiTextRepository) {
+        this.uiTextRepository = uiTextRepository;
+    }
 
     public UiText getUiText(String textKey, Locale locale) {
         UiText uiText = uiTextRepository.findByLanguageCodeAndCountryCodeAndTextKey(
