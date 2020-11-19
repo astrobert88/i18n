@@ -11,7 +11,7 @@ import javax.validation.constraints.NotNull;
 
 @Entity
 @Data
-public class Message {
+public class UiText {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
@@ -26,8 +26,8 @@ public class Message {
 
     @NotNull
     @NotEmpty
-    private String messageKey;
+    private String textKey;
 
-    private String messageContent;
+    private String textValue;
 
 }

@@ -36,33 +36,33 @@ public class DbI18NProviderTest {
         log.info("testGetTranslation()");
 
         Locale aLocale = new Locale.Builder().setLanguage("en").setRegion("").build();
-        String message = dbI18NProvider.getTranslation("home.welcome", aLocale);
-        log.info("home.welcome="+message);
-        Assert.assertNotNull(message);
-        Assert.assertEquals("Welcome", message);
+        String uiText = dbI18NProvider.getTranslation("home.welcome", aLocale);
+        log.info("home.welcome="+uiText);
+        Assert.assertNotNull(uiText);
+        Assert.assertEquals("Welcome", uiText);
 
         aLocale = new Locale.Builder().setLanguage("en").setRegion("").build();
-        message = dbI18NProvider.getTranslation("home.favcolor", aLocale);
-        log.info("home.favcolor="+message);
-        Assert.assertNotNull(message);
-        Assert.assertEquals("My favourite colour is blue", message);
+        uiText = dbI18NProvider.getTranslation("home.favcolor", aLocale);
+        log.info("home.favcolor="+uiText);
+        Assert.assertNotNull(uiText);
+        Assert.assertEquals("My favourite colour is blue", uiText);
 
         aLocale = new Locale.Builder().setLanguage("en").setRegion("US").build();
-        message = dbI18NProvider.getTranslation("home.favcolor", aLocale);
-        log.info("home.favcolor="+message);
-        Assert.assertNotNull(message);
-        Assert.assertEquals("My favorite color is blue", message);
+        uiText = dbI18NProvider.getTranslation("home.favcolor", aLocale);
+        log.info("home.favcolor="+uiText);
+        Assert.assertNotNull(uiText);
+        Assert.assertEquals("My favorite color is blue", uiText);
 
         aLocale = new Locale.Builder().setLanguage("de").setRegion("").build();
-        message = dbI18NProvider.getTranslation("home.welcome", aLocale);
-        log.info("home.welcome="+message);
-        Assert.assertNotNull(message);
-        Assert.assertEquals("Wilkommen", message);
+        uiText = dbI18NProvider.getTranslation("home.welcome", aLocale);
+        log.info("home.welcome="+uiText);
+        Assert.assertNotNull(uiText);
+        Assert.assertEquals("Wilkommen", uiText);
 
         aLocale = new Locale.Builder().setLanguage("zh").setRegion("").build();
-        message = dbI18NProvider.getTranslation("home.welcome", aLocale);
-        log.info("home.welcome="+message);
-        Assert.assertNotNull(message);
-        Assert.assertEquals("歡迎", message);
+        uiText = dbI18NProvider.getTranslation("home.welcome", aLocale);
+        log.info("home.welcome="+uiText);
+        Assert.assertNotNull(uiText);
+        Assert.assertEquals("歡迎", uiText);
     }
 }

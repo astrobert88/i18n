@@ -13,11 +13,11 @@ import java.util.Locale;
 @Slf4j
 public class DbI18NProvider implements I18NProvider {
 
-    private MessageService messageService;
+    private UiTextService uiTextService;
 
-    public DbI18NProvider(@Autowired MessageService messageService) {
-        log.debug("DbI18NProvider() constructor called. messageService autowired to "+messageService);
-        this.messageService = messageService;
+    public DbI18NProvider(@Autowired UiTextService uiTextService) {
+        log.debug("DbI18NProvider() constructor called. uiTextService autowired to "+ uiTextService);
+        this.uiTextService = uiTextService;
     }
 
 
@@ -25,7 +25,7 @@ public class DbI18NProvider implements I18NProvider {
     public List<Locale> getProvidedLocales() {
         List<Locale> providedLocales = new ArrayList<Locale>();
 
-        String[][] languagesCountriesArray = messageService.findDistinctLocales();
+        String[][] languagesCountriesArray = uiTextService.findDistinctLocales();
 
         for (int i = 0; i < languagesCountriesArray.length; i++) {
             String languageCode = languagesCountriesArray[i][0];
@@ -40,19 +40,19 @@ public class DbI18NProvider implements I18NProvider {
     }
 
     @Override
-    public String getTranslation(String messageKey, Locale locale, Object... objects) {
-        log.debug("getTranslation(messageKey:"+messageKey+", local:"+locale+") called");
+    public String getTranslation(String uiTextKey, Locale locale, Object... objects) {
+        log.debug("getTranslation(uiTextKey:"+uiTextKey+", local:"+locale+") called");
 
-        Message msg = messageService.getMessage(messageKey, locale);
+        UiText uiText = uiTextService.getUiText(uiTextKey, locale);
 
-        if (msg == null) {
-            msg = new Message();
-            msg.setMessageContent("No message in table: languageCode="+
+        if (uiText == null) {
+            uiText = new UiText();
+            uiText.setTextValue("No UiText in table: languageCode="+
                             locale.getLanguage()+", countryCode="+locale.getCountry()
-            + " "+messageKey
+            + " " + uiTextKey
             );
         }
 
-        return msg.getMessageContent();
+        return uiText.getTextValue();
     }
 }

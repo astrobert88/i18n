@@ -1,4 +1,4 @@
-INSERT INTO message (language_code, country_code, message_key, message_content) VALUES
+INSERT INTO ui_text (language_code, country_code, text_key, text_value) VALUES
 ('en', '', 'home.welcome','Welcome'),
 ('en', '', 'home.info','This page is displayed in English.'),
 ('en', '', 'home.favcolor','My favourite colour is blue'),
