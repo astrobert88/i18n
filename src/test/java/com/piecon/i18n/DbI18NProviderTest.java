@@ -30,7 +30,7 @@ public class DbI18NProviderTest {
 
         List<Locale> locales = dbI18NProvider.getProvidedLocales();
         Assert.assertNotNull(locales);
-        Assert.assertEquals(3, locales.size());
+        Assert.assertEquals(6, locales.size());
     }
 
     @Test
