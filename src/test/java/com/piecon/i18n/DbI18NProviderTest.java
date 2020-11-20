@@ -34,6 +34,55 @@ public class DbI18NProviderTest {
     }
 
     @Test
+    public void testGetTranslation_noKey() {
+        log.info("testGetTranslation_noKey()");
+
+        Locale aLocale = new Locale.Builder().setLanguage("").setRegion("").build();
+        String uiTextValue = dbI18NProvider.getTranslation("no.such.key", aLocale);
+        log.info("no.such.key="+uiTextValue);
+        Assert.assertNotNull(uiTextValue);
+        Assert.assertEquals("no.such.key", uiTextValue);
+    }
+
+    @Test
+    public void testGetTranslation_noLanguageMatch() {
+        log.info("testGetTranslation_noLanguageMatch()");
+
+        Locale aLocale = new Locale.Builder().setLanguage("").setRegion("").build();
+        String uiTextValue = dbI18NProvider.getTranslation("home.welcome", aLocale);
+        log.info("home.welcome="+uiTextValue);
+        Assert.assertNotNull(uiTextValue);
+        Assert.assertEquals("home.welcome", uiTextValue);
+    }
+
+    @Test
+    public void testGetTranslation_languageMatchButNoCountryMatch() {
+        log.info("testGetTranslation_languageMatchButNoCountryMatch()");
+
+        Locale aLocale = new Locale.Builder().setLanguage("de").setRegion("CH").build();
+        String uiTextValue = dbI18NProvider.getTranslation("home.welcome", aLocale);
+        log.info("home.welcome="+uiTextValue);
+        Assert.assertNotNull(uiTextValue);
+        // There is no country match for Switzerland (CH) but there is a German one without a country code so return that.
+        Assert.assertEquals("Wilkommen", uiTextValue);
+    }
+
+    @Test
+    // Almost identical to previous test but now the first entry to match the language has the wrong country code.
+    // Even though there is one without a country code further down. It should return the one without a country code.
+    public void testGetTranslation_languageMatchButNoCountryMatch2() {
+        log.info("testGetTranslation_languageMatchButNoCountryMatch2()");
+
+        Locale aLocale = new Locale.Builder().setLanguage("en").setRegion("CA").build();
+        String uiTextValue = dbI18NProvider.getTranslation("hello", aLocale);
+        log.info("hello="+uiTextValue);
+        Assert.assertNotNull(uiTextValue);
+        // There is no entry for Canada (CA) and the first entry with 'en' as language is AU. However, further down
+        // the list there is one with country code ''. That's the one we expect
+        Assert.assertEquals("Hello", uiTextValue);
+    }
+
+    @Test
     public void testGetTranslation() {
         log.info("testGetTranslation()");
 

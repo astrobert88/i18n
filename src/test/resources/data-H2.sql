@@ -20,5 +20,11 @@ INSERT INTO ui_text (language_code, country_code, text_key, text_value) VALUES
 ('zh', '', 'home.changelanguage','支持的語言  : '),
 ('zh', '', 'home.lang.en','英語'),
 ('zh', '', 'home.lang.de','德語'),
-('zh', '', 'home.lang.zh','普通話')
+('zh', '', 'home.lang.zh','普通話'),
+
+-- To test for language match but no country match
+('en', 'AU', 'hello','Gday mate'),
+('en', 'GB', 'hello','Good day old chap'),
+('en', '', 'hello','Hello'),
+('en', 'US', 'hello','Hi there')
 ;

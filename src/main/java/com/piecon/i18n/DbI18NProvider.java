@@ -23,17 +23,17 @@ public class DbI18NProvider implements I18NProvider {
 
     @Override
     public List<Locale> getProvidedLocales() {
-        List<Locale> providedLocales = new ArrayList<Locale>();
+        List<Locale> providedLocales = new ArrayList<>();
 
         String[][] languagesCountriesArray = uiTextService.findDistinctLocales();
 
-        for (int i = 0; i < languagesCountriesArray.length; i++) {
-            String languageCode = languagesCountriesArray[i][0];
-            String countryCode = languagesCountriesArray[i][1];
+        for (String[] strings : languagesCountriesArray) {
+            String languageCode = strings[0];
+            String countryCode = strings[1];
 
             Locale aLocale = new Locale.Builder().setLanguage(languageCode).setRegion(countryCode).build();
             providedLocales.add(aLocale);
-            log.info("Added: "+aLocale);
+            log.info("Added: " + aLocale);
         }
 
         return providedLocales;
@@ -43,16 +43,6 @@ public class DbI18NProvider implements I18NProvider {
     public String getTranslation(String uiTextKey, Locale locale, Object... objects) {
         log.debug("getTranslation(uiTextKey:"+uiTextKey+", local:"+locale+") called");
 
-        UiText uiText = uiTextService.getUiText(uiTextKey, locale);
-
-        if (uiText == null) {
-            uiText = new UiText();
-            uiText.setTextValue("No UiText in table: languageCode="+
-                            locale.getLanguage()+", countryCode="+locale.getCountry()
-            + " " + uiTextKey
-            );
-        }
-
-        return uiText.getTextValue();
+        return uiTextService.getUiText(uiTextKey, locale).getTextValue();
     }
 }
