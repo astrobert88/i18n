@@ -8,7 +8,7 @@ INSERT INTO ui_text (language_code, country_code, text_key, text_value) VALUES
 ('en', '', 'home.lang.de','German'),
 ('en', '', 'home.lang.zh','Chinese'),
 
-('de', '', 'home.welcome','Wilkommen'),
+('de', 'AT', 'home.welcome','Wilkommen'),
 ('de', '', 'home.info','Diese Seite wird in deutscher Sprache angezeigt.'),
 ('de', '', 'home.changelanguage','Unterstützte Sprachen : '),
 ('de', '', 'home.lang.en','Englisch'),
