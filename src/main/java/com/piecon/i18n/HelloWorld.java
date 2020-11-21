@@ -19,6 +19,7 @@ import org.apache.commons.lang3.LocaleUtils;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 @Route("")
 @Slf4j
@@ -43,10 +44,13 @@ public class HelloWorld extends Composite<Div> implements LocaleChangeObserver {
             VaadinSession.getCurrent().setLocale(newLocale);
             button.setText(getTranslation("home.welcome"));
         });
+/*
         localeSelect.setItems(providedLocales.get(0).toString(),
                 providedLocales.get(1).toString(),
                 providedLocales.get(2).toString(),
                 providedLocales.get(3).toString());
+*/
+        localeSelect.setItems(providedLocales.stream().map(l -> l.toString()).collect(Collectors.toList()));
         Locale currentLocale = UI.getCurrent().getLocale();
         localeSelect.setValue(currentLocale.toString());
 
