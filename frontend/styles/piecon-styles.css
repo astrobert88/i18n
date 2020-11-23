@@ -1,0 +1,8 @@
+.my-flag {
+  border-radius: 5px;
+  height: var(--lumo-size-s);
+  background-color: var(--lumo-background);
+  margin: 0px 0px 0px 0px;
+  padding: 0px 0px 0px 0px;
+}
+

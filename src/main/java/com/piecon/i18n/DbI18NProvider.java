@@ -41,7 +41,7 @@ public class DbI18NProvider implements I18NProvider {
 
     @Override
     public String getTranslation(String uiTextKey, Locale locale, Object... objects) {
-        log.debug("getTranslation(uiTextKey:"+uiTextKey+", local:"+locale+") called");
+        log.info("getTranslation(uiTextKey:"+uiTextKey+", local:"+locale+") called");
 
         return uiTextService.getUiText(uiTextKey, locale).getTextValue();
     }
