@@ -1,5 +1,6 @@
 package com.piecon.i18n;
 
+import com.piecon.i18n.core.DbI18NProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Test;

@@ -1,6 +1,8 @@
 package com.piecon.i18n;
 
 import com.github.appreciated.papermenubutton.PaperMenuButton;
+import com.piecon.i18n.view.LocalesView;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Image;
@@ -21,6 +23,8 @@ public class LanguageSelectionMenu extends VerticalLayout {
         setWidth("100%");
 
         VerticalLayout popupContent = new VerticalLayout();
+        currentLanguageFlag = createFlagImage(currentLocale);
+        flagSelectionMenu = new PaperMenuButton(currentLanguageFlag, popupContent);
 
         popupContent.getStyle().set("border-radius", "8px");
         popupContent.getStyle().set("margin", "0px 0px 0px 0px");
@@ -31,9 +35,12 @@ public class LanguageSelectionMenu extends VerticalLayout {
         for (Locale locale : providedLocales) {
             popupContent.add(createFlagButton(locale));
         }
-
-        currentLanguageFlag = createFlagImage(currentLocale);
-        flagSelectionMenu = new PaperMenuButton(currentLanguageFlag, popupContent);
+        Button chooseCountryButton = new Button("More...");
+        chooseCountryButton.addClickListener( e -> {
+            UI.getCurrent().navigate(LocalesView.class);
+            flagSelectionMenu.close();
+        });
+        popupContent.add(chooseCountryButton);
 
         add(flagSelectionMenu);
     }
@@ -48,7 +55,7 @@ public class LanguageSelectionMenu extends VerticalLayout {
             flagName = locale.getLanguage();
         }
 
-        Image flagImage = new Image("img/language-flags/"+flagName+".png", "Flag");
+        Image flagImage = new Image("img/language-flags/"+flagName+".png", flagName+".png");
         flagImage.setClassName("my-flag");
 
         return flagImage;

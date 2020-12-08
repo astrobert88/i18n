@@ -14,14 +14,23 @@
             </Pattern>
         </layout>
     </appender>
+    <!-- Highlight testing log messages in orange -->
+    <appender name="ConsoleTestLogging" class="ch.qos.logback.core.ConsoleAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <Pattern>
+                %black(%d{ISO8601}) %highlight(%-5level) [%blue(%t)] %green(%C{1.}): %msg%n%throwable
+            </Pattern>
+        </layout>
+    </appender>
 
-    <!-- Log everything at INFO level -->
+    <!-- Log our messages in red. Set additivity to false to avoid double logging by root appender -->
+    <logger name="com.piecon" level="debug" additivity="false">
+        <appender-ref ref="ConsoleTestLogging" />
+    </logger>
+
+    <!-- Log everything else at INFO level -->
     <root level="info">
         <appender-ref ref="Console"/>
     </root>
-
-<!--
-    <logger name="org.springframework.transaction" level="trace"/>
--->
 
 </configuration>
