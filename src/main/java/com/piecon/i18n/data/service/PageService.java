@@ -41,6 +41,8 @@ public class PageService extends I18nEntityService {
         I18nEntity i18nEntity = getI18nEntity(i18nKey, locale);
 
         if (i18nEntity == null) {
+            log.error("No Page found with i18nKey=" + i18nKey + " and locale=" + locale);
+            log.info("Returning Page 404 instead");
             Page page404 = new Page(i18nKey, locale.getLanguage(), locale.getCountry());
             page404.setTitle(PAGE_404);
             page404.setText1(PAGE_NOT_FOUND);

@@ -3,12 +3,16 @@ package com.piecon.i18n.core;
 import com.piecon.i18n.data.entity.I18nEntity;
 import com.piecon.i18n.data.entity.Page;
 import com.piecon.i18n.data.entity.UiText;
+import com.piecon.i18n.data.service.PageService;
 import com.piecon.i18n.data.service.UiTextService;
+import com.vaadin.flow.component.HasText;
 import com.vaadin.flow.i18n.I18NProvider;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -17,14 +21,24 @@ import java.util.Locale;
 @Slf4j
 public class DbI18NProvider implements I18NProvider {
 
-    private UiTextService uiTextService;
+    private final UiTextService uiTextService;
+    private final PageService pageService;
 
-    public DbI18NProvider(@Autowired UiTextService uiTextService) {
+    /**
+     * @param uiTextService
+     */
+    public DbI18NProvider(@Autowired UiTextService uiTextService, @Autowired PageService pageService) {
         log.debug("DbI18NProvider() constructor called. uiTextService autowired to " + uiTextService);
+        log.debug("pageService autowired to " + pageService);
+
         this.uiTextService = uiTextService;
+        this.pageService = pageService;
     }
 
 
+    /**
+     * @return
+     */
     @Override
     public List<Locale> getProvidedLocales() {
         List<Locale> providedLocales = new ArrayList<>();
@@ -44,111 +58,122 @@ public class DbI18NProvider implements I18NProvider {
     }
 
     /**
-     * This method will fetch the text value of the UiText entity with the given i18NKey.
+     * This method will fetch the text value of the UiText entity with the given i18nKey.
+     * <p>
+     * There may be multiple UiText entities with the given i18nKey but only one for the given locale.
      *
-     * There may be multiple UiText entities with the given i18NKey but only one for the given locale.
-     *
-     * @param i18NKey
+     * @param i18nKey
      * @param locale
      * @param objects
      * @return
      */
     @Override
-    public String getTranslation(String i18NKey, Locale locale, Object... objects) {
-        log.info("getTranslation(i18NKey:" + i18NKey + ", locale:" + locale + ")");
+    public String getTranslation(String i18nKey, Locale locale, Object... objects) {
+        log.info("getTranslation(i18nKey:" + i18nKey + ", locale:" + locale + ")");
 
-        return getTranslation(UiText.class, i18NKey, locale);
+        String translation = null;
+        try {
+            translation = getTranslationFromBeanProperty(i18nKey, UiText.class, "textValue", locale);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            // Never going to happen unless the UiText class is refactored and field 'textValue' is removed.
+            e.printStackTrace();
+        }
+
+        return translation;
     }
 
 
     /**
-     * This method will fetch the text value of the given entity with the given i18NKey.
-     *
-     * The entity must implement I18nEntity.
-     *
-     * There may be multiple entities with the given i18NKey but only one for the given locale.
-     *
+     * This method will get the entity of the specified class with the specified i18nKey.
+     * From this entity, it will return the value of the specified textSourceField
      */
-     public String getTranslation(Class<? extends I18nEntity> textSourceClass,
-                                  String textSourceProperty,
-                                  Locale locale,
-                                  Object... objects) {
-        log.info("getTranslation(textSourceClass:" + textSourceClass + ", textSourceProperty:" + textSourceProperty +
-                 ", Locale:" + locale);
+    public String getTranslationFromBeanProperty(@NonNull String i18nKey,
+                                                 @NonNull Class<? extends I18nEntity> textSourceClass,
+                                                 @NonNull String textSourceField,
+                                                 @NonNull Locale locale,
+                                                 Object... objects) throws NoSuchFieldException, IllegalAccessException {
+
+        log.info("getTranslationFromBeanProperty(i18nKey=" + i18nKey + ", " +
+                "textSourceClass=" + textSourceClass + ", " +
+                "textSourceField=" + textSourceField + ", " +
+                "Locale:" + locale);
 
         // Find a more elegant approach..
-         if (textSourceClass == UiText.class) {
-             return uiTextService.getUiText(textSourceProperty, locale).getTextValue();
-         }
-         else if (textSourceClass == Page.class) {
-             return null;//pageService.getPage(textSourceProperty, locale).getTextValue();
-         }
-         else {
-             throw new RuntimeException("Unsupported class:" + textSourceClass);
-         }
+        if (textSourceClass == UiText.class) {
+            return uiTextService.getUiText(i18nKey, locale).getTextValue();
+        } else if (textSourceClass == Page.class) {
+            Page page = pageService.getPage(i18nKey, locale);
+            Field field = textSourceClass.getDeclaredField(textSourceField);
+            field.setAccessible(true); // Turn off otherwise private access modifier will cause Exception
+
+            return (String) field.get(page);
+        } else {
+            throw new RuntimeException("Unsupported class:" + textSourceClass);
+        }
 
     }
 
-
-    public String[] getProvidedLanguages() {
-        return uiTextService.getDistinctLanguages();
-    }
 
     /**
-     * This method looks for any properties in the given class which are annotated with @GetTextFrom. It then gets the
+     *
+     * @return public String[] getProvidedLanguages() {
+    return uiTextService.getDistinctLanguages();
+    }
+     */
+
+    /**
+     * This method looks for any properties in the given class which are annotated with @I18nGetText. It then gets the
      * text in the language specified by the locale and calls the setText() method on each property.
-    void setTextOnAnnotatedProperties(Class<?> annotatedClass, Locale locale) {
+     */
+    public void setTextOnI18nGetTextAnnotatedFields(Object o, Locale locale)
+            throws I18nGetTextAnnotationException, IllegalAccessException {
 
-        log.info("setTextOnAnnotatedProperties()");
+        log.info("setTextOnI18nGetTextAnnotatedFields(Object=" + o + ", locale=" + locale + ")");
+        String objectClassname = o.getClass().getName();
 
-        for (Field field : annotatedClass.getDeclaredFields()) {
+        for (Field field : o.getClass().getDeclaredFields()) {
             field.setAccessible(true);
 
-            if (field.isAnnotationPresent(GetTextFrom.class)) {
-                log.info("Annotation found for " + field);
+            if (field.isAnnotationPresent(I18nGetText.class)) {
+                String fieldName = field.getName();
+                Class<?> fieldClass = field.get(o).getClass();
+                String fieldClassname = fieldClass.getName();
 
-                GetTextFrom annotation = field.getAnnotation(GetTextFrom.class);
+                log.info("@" + I18nGetText.class.getSimpleName() + " annotation found on field " +
+                        objectClassname + "." + fieldName + " (" + fieldClassname + ")");
 
-                final Class<?> textSourceClass = annotation.textSourceClass();
-                final String textSourceProperty = annotation.textSourceProperty();
+                // Sanity check; only properties implementing HasText() should be annotated with I18nGetText
+                // How else can we call setText() on it?
+                if (!HasText.class.isAssignableFrom(fieldClass)) {
 
-                log.info("textSourceClass =" + textSourceClass);
-                log.info("textSourceProperty =" + textSourceProperty);
+                    String errorMessage =
+                            "Property " + objectClassname + "." + fieldName + " is of type " +
+                            fieldClassname + ". Properties of type " + fieldClassname + " cannot be annotated with " +
+                            "@" + I18nGetText.class.getSimpleName() + " because it does not implement " +
+                            HasText.class.getName() + ". This means we cannot call setText() on property " +
+                            fieldName + "!";
 
-                String text = getTranslation(messageKey, locale);
-                log.info("translation=" + translation);
-            }
-        }
-        I18nTranslate annotation = navigationTarget.getAnnotation(I18nTranslate.class);
-        if (annotation == null) {
-            log.info(ERROR_MSG_NO_ANNOTATION + navigationTarget.getName());
-        } else {
-            log.info("annotation found!!!!");
-            final String messageKey = (annotation.messageKey().isEmpty())
-                    ? annotation.defaultValue()
-                    : annotation.messageKey();
+                    log.error(errorMessage);
 
-            log.info("messageKey=" + messageKey);
+                    throw new I18nGetTextAnnotationException(errorMessage);
+                }
 
-            final I18NProvider i18NProvider = VaadinService
-                    .getCurrent()
-                    .getInstantiator()
-                    .getI18NProvider();
-            final Locale locale = event.getUI().getLocale();
-            final List<Locale> providedLocales = i18NProvider.getProvidedLocales();
+                HasText property = (HasText) field.get(o);
 
-            Locale providedLocale = null;
+                I18nGetText annotation = field.getAnnotation(I18nGetText.class);
+                String i18nKey = annotation.i18nKey();
+                Class<? extends I18nEntity> textSourceClass = annotation.textSourceClass();
+                String textSourceField = annotation.textSourceField();
 
-            if (locale == null && providedLocales.isEmpty()) {
-                log.info(ERROR_MSG_NO_LOCALE + i18NProvider.getClass().getName());
-            } else if (locale == null) {
-                providedLocale = providedLocales.get(0);
-            } else if (providedLocales.contains(locale)) {
-                providedLocale = locale;
-            } else {
-                providedLocale = providedLocales.get(0);
+                try {
+                    String text = getTranslationFromBeanProperty(i18nKey, textSourceClass, textSourceField, locale);
+                    log.info("Calling " + objectClassname + "." + fieldName + ".setText('"+ text + "')");
+                    property.setText(text);
+                } catch (NoSuchFieldException | IllegalAccessException e) {
+                    log.error(e.getMessage());
+                    e.printStackTrace();
+                }
             }
         }
     }
-     */
 }

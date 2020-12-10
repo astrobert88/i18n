@@ -1,4 +1,6 @@
-package com.piecon.i18n;
+package com.piecon.i18n.core;
+
+import com.piecon.i18n.data.entity.I18nEntity;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,8 +9,8 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
-public @interface I18nTranslate {
-    String tableName() default "some.default.tableName";
-    String textKey() default "some.default.key";
-    //String defaultValue() default "some.default.value";
+public @interface I18nGetText {
+    String i18nKey();
+    Class<? extends I18nEntity> textSourceClass();
+    String textSourceField();
 }

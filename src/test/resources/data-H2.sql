@@ -34,5 +34,6 @@ INSERT INTO ui_text (id, language_code, country_code, i18n_key, text_value) VALU
 INSERT INTO page (id, language_code, country_code, i18n_key, title, text1) VALUES
 (hibernate_sequence.nextval, 'en', '', 'home', 'Home Page','Welcome to the home page!'),
 (hibernate_sequence.nextval, 'nl', '', 'home', 'Thuis Pagina','Welkom op de thuispagina!'),
+(hibernate_sequence.nextval, 'en', 'AU', 'home', 'Down Under','Welcome to Down Under!'),
 (hibernate_sequence.nextval, 'en', '', '404', '404','Page not found!')
 ;
