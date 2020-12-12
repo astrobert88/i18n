@@ -8,6 +8,7 @@ import com.piecon.i18n.data.entity.Page;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.i18n.LocaleChangeObserver;
 import com.vaadin.flow.router.BeforeEvent;
@@ -25,17 +26,20 @@ import java.util.Locale;
 public class I18nAnnotatedView extends VerticalLayout implements I18nConstants, HasUrlParameter<String>, LocaleChangeObserver {
 
     @I18nGetText(i18nKey = PAGE_HOME, textSourceClass = Page.class, textSourceField = PAGE_TEXT1)
-    private final Span text1 = new Span();
+    private final Span pageText1 = new Span();
     @I18nGetText(i18nKey = PAGE_HOME, textSourceClass = Page.class, textSourceField = PAGE_TITLE)
-    private final Span title = new Span();
+    private final Span pageTitle = new Span();
+    @I18nGetText(i18nKey = "username")
+    private final TextField textFieldUsername = new TextField();
 
 
     public I18nAnnotatedView() {
         log.info("I18nAnnotatedView()");
 
         add(new H3("Annotations"));
-        add(title);
-        add(text1);
+        add(pageTitle);
+        add(pageText1);
+        add(textFieldUsername);
     }
 
     @Override

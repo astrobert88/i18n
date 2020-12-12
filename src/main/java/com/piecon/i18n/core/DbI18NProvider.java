@@ -4,8 +4,10 @@ import com.piecon.i18n.data.entity.I18nEntity;
 import com.piecon.i18n.data.entity.Page;
 import com.piecon.i18n.data.entity.UiText;
 import com.piecon.i18n.data.service.PageService;
+import com.piecon.i18n.data.service.TextFieldService;
 import com.piecon.i18n.data.service.UiTextService;
 import com.vaadin.flow.component.HasText;
+import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.i18n.I18NProvider;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -23,16 +25,20 @@ public class DbI18NProvider implements I18NProvider {
 
     private final UiTextService uiTextService;
     private final PageService pageService;
+    private final TextFieldService textFieldService;
 
     /**
      * @param uiTextService
      */
-    public DbI18NProvider(@Autowired UiTextService uiTextService, @Autowired PageService pageService) {
+    public DbI18NProvider(@Autowired UiTextService uiTextService,
+                          @Autowired PageService pageService,
+                          @Autowired TextFieldService textFieldService) {
         log.debug("DbI18NProvider() constructor called. uiTextService autowired to " + uiTextService);
         log.debug("pageService autowired to " + pageService);
 
         this.uiTextService = uiTextService;
         this.pageService = pageService;
+        this.textFieldService = textFieldService;
     }
 
 
@@ -129,29 +135,46 @@ public class DbI18NProvider implements I18NProvider {
             throws I18nGetTextAnnotationException, IllegalAccessException {
 
         log.info("setTextOnI18nGetTextAnnotatedFields(Object=" + o + ", locale=" + locale + ")");
-        String objectClassname = o.getClass().getName();
+        String annotatedObjectClassname = o.getClass().getName();
 
         for (Field field : o.getClass().getDeclaredFields()) {
             field.setAccessible(true);
 
             if (field.isAnnotationPresent(I18nGetText.class)) {
-                String fieldName = field.getName();
-                Class<?> fieldClass = field.get(o).getClass();
-                String fieldClassname = fieldClass.getName();
+                // The properties of the annotated field
+                String annotatedFieldName = field.getName();
+                Class<?> annotatedFieldClass = field.get(o).getClass();
+                String annotatedFieldClassname = annotatedFieldClass.getName();
 
                 log.info("@" + I18nGetText.class.getSimpleName() + " annotation found on field " +
-                        objectClassname + "." + fieldName + " (" + fieldClassname + ")");
+                        annotatedObjectClassname + "." + annotatedFieldName + " (" + annotatedFieldClassname + ")");
 
-                // Sanity check; only properties implementing HasText() should be annotated with I18nGetText
-                // How else can we call setText() on it?
-                if (!HasText.class.isAssignableFrom(fieldClass)) {
+                // The properties of the annotation itself
+                I18nGetText annotation = field.getAnnotation(I18nGetText.class);
+                String i18nKey = annotation.i18nKey();
+                Class<? extends I18nEntity> textSourceClass = annotation.textSourceClass();
+                String textSourceField = annotation.textSourceField();
+
+                // Clean this up
+                if (annotatedFieldClassname.equals(TextField.class.getName())) {
+                    TextField textField = (TextField) field.get(o);
+                    com.piecon.i18n.data.entity.TextField textFieldEntity =
+                            (com.piecon.i18n.data.entity.TextField) textFieldService.getI18nEntity(i18nKey, locale);
+                    textField.setLabel(textFieldEntity.getLabel());
+                    textField.setPlaceholder(textFieldEntity.getPlaceholder());
+
+                    continue;
+                }
+
+                // Sanity check; other properties should implement HasText() How else can we call setText() on it?
+                if (!HasText.class.isAssignableFrom(annotatedFieldClass)) {
 
                     String errorMessage =
-                            "Property " + objectClassname + "." + fieldName + " is of type " +
-                            fieldClassname + ". Properties of type " + fieldClassname + " cannot be annotated with " +
+                            "Property " + annotatedObjectClassname + "." + annotatedFieldName + " is of type " +
+                            annotatedFieldClassname + ". Properties of type " + annotatedFieldClassname + " cannot be annotated with " +
                             "@" + I18nGetText.class.getSimpleName() + " because it does not implement " +
                             HasText.class.getName() + ". This means we cannot call setText() on property " +
-                            fieldName + "!";
+                            annotatedFieldName + "!";
 
                     log.error(errorMessage);
 
@@ -160,14 +183,9 @@ public class DbI18NProvider implements I18NProvider {
 
                 HasText property = (HasText) field.get(o);
 
-                I18nGetText annotation = field.getAnnotation(I18nGetText.class);
-                String i18nKey = annotation.i18nKey();
-                Class<? extends I18nEntity> textSourceClass = annotation.textSourceClass();
-                String textSourceField = annotation.textSourceField();
-
                 try {
                     String text = getTranslationFromBeanProperty(i18nKey, textSourceClass, textSourceField, locale);
-                    log.info("Calling " + objectClassname + "." + fieldName + ".setText('"+ text + "')");
+                    log.info("Calling " + annotatedObjectClassname + "." + annotatedFieldName + ".setText('"+ text + "')");
                     property.setText(text);
                 } catch (NoSuchFieldException | IllegalAccessException e) {
                     log.error(e.getMessage());

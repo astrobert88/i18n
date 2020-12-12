@@ -21,6 +21,17 @@ CREATE TABLE page (
 	UNIQUE KEY page_key (i18n_key, language_code, country_code)
 );
 
+CREATE TABLE text_field (
+	id                  BIGINT(20) NOT NULL,
+	i18n_key            VARCHAR(255),
+	language_code       CHAR(2) NOT NULL,
+	country_code        CHAR(2) NOT NULL DEFAULT '',
+	label               VARCHAR(255),
+	placeholder         VARCHAR(255),
+	PRIMARY KEY (id),
+	UNIQUE KEY text_field_key (i18n_key, language_code, country_code)
+);
+
 -- Need to create the standard sequence HIBERNATE_SEQUENCE since we are using this schema.sql script instead of letting
 -- Hibernate create the ddl automatically
 -- In your INSERT statements, include column 'id' and use value hibernate_sequence.nextval - see data.sql

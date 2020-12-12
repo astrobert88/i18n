@@ -33,3 +33,8 @@ INSERT INTO page (language_code, country_code, i18n_key, title, text1) VALUES
 ('nl', '', 'home', 'Thuis Pagina','Welkom op de thuispagina!'),
 ('en', '', '404', '404','Page not found!')
 ;
+
+INSERT INTO text_field (language_code, country_code, i18n_key, label, placeholder) VALUES
+('en', '', 'username', 'Username','Enter username'),
+('nl', '', 'username', 'Gebruikersnaam','Gebruikersnaam hier')
+;

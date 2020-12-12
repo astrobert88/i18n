@@ -37,3 +37,8 @@ INSERT INTO page (id, language_code, country_code, i18n_key, title, text1) VALUE
 (hibernate_sequence.nextval, 'en', 'AU', 'home', 'Down Under','Welcome to Down Under!'),
 (hibernate_sequence.nextval, 'en', '', '404', '404','Page not found!')
 ;
+
+INSERT INTO text_field (id, language_code, country_code, i18n_key, label, placeholder) VALUES
+(hibernate_sequence.nextval, 'en', '', 'username', 'Username','Enter username'),
+(hibernate_sequence.nextval, 'nl', '', 'username', 'Gebruikersnaam','Gebruikersnaam hier')
+;

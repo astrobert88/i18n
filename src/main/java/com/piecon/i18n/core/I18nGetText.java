@@ -11,6 +11,6 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 public @interface I18nGetText {
     String i18nKey();
-    Class<? extends I18nEntity> textSourceClass();
-    String textSourceField();
+    Class<? extends I18nEntity> textSourceClass() default I18nEntity.class;
+    String textSourceField() default "";
 }
